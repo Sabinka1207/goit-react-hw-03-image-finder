@@ -5,7 +5,7 @@ export const Searchbar = ({ onClick }) => {
         <header className={css.Searchbar}>
             <form className={css.SearchForm} onSubmit={e => {
                 e.preventDefault()
-                onClick(e.target.elements.request.value)
+                onClick(e.target.elements.request.value.trim())
 
             }}>
             <button type="submit" className={css.SearchFormButton}>

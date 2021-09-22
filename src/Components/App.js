@@ -31,6 +31,13 @@ class App extends Component {
       }));
       this.setState({ reqStatus: null });
     }
+
+    if (prevState.page !== page) {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }
 
   handleSubmit = (request) => {
@@ -39,10 +46,6 @@ class App extends Component {
 
   loadMore = () => {
     this.setState((prevState) => ({ page: prevState.page + 1 }));
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth",
-    });
   };
 
   render() {
