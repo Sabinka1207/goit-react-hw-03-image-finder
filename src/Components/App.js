@@ -4,13 +4,15 @@ import { Searchbar } from "./Searchbar/Searchbar";
 import { ImageGallery } from "./ImageGallery/ImageGallery";
 import { Modal } from "./Modal/Modal";
 import { Spinner } from "./Loader/Loader";
+import { Button } from "./Button/Button";
 import { fetchImages } from "../Utils/API";
 
 class App extends Component {
   state = {
     allImages: [],
     selectedImage: null,
-    reqStatus: false,
+    reqStatus: null,
+    request: "",
     page: 1,
   };
 
@@ -18,24 +20,30 @@ class App extends Component {
     this.setState({ selectedImage: image });
   };
 
+  async componentDidUpdate(_, prevState) {
+    const { request, page } = this.state;
+
+    if (prevState.request !== request || prevState.page !== page) {
+      this.setState({ reqStatus: "loading" });
+      const result = await fetchImages(request, page);
+      this.setState((prevState) => ({
+        allImages: [...prevState.allImages, ...result.hits],
+      }));
+      this.setState({ reqStatus: null });
+    }
+  }
+
   handleSubmit = (request) => {
-    console.log("1: ", this.state.reqStatus);
-    this.setState({ reqStatus: true });
-    console.log("after set: ", this.state.reqStatus);
-    fetchImages(request)
-      .then((r) => {
-        console.log(r);
-        this.setState({ allImages: r.hits });
-      })
-      .finally(
-        console.log("finished"),
-        this.setState({ reqStatus: false }),
-        console.log("3: ", this.state.reqStatus)
-      );
+    this.setState({ allImages: [], request: request });
+  };
+
+  loadMore = () => {
+    this.setState((prevState) => ({ page: prevState.page + 1 }));
   };
 
   render() {
     const { allImages, selectedImage, reqStatus } = this.state;
+    const shouldLoadMore = Boolean(allImages.length);
 
     return (
       <div className="App">
@@ -44,6 +52,7 @@ class App extends Component {
         {selectedImage && (
           <Modal link={selectedImage} modalToggle={this.handleSelectImage} />
         )}
+        {shouldLoadMore && !reqStatus && <Button onClick={this.loadMore} />}
         {reqStatus && <Spinner />}
       </div>
     );
